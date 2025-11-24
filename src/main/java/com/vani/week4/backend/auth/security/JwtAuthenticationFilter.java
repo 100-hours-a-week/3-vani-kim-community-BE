@@ -40,7 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/v1/auth/users", "/api/v1/auth/tokens", "/api/v1/auth/nickname", "/api/v1/auth/email",
             "/api/v1/auth/logout", "/api/v1/auth/refresh", "/api/v1/uploads/presign/temp",
             "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-            "/api/loadtest/**"  // 부하 테스트 API (개발/테스트 환경 전용)
+            "/api/loadtest/**",  // 부하 테스트 API (개발/테스트 환경 전용)
+            "/health"
     };
 
     // 필터 제외 경로 설정

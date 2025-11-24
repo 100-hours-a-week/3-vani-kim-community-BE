@@ -22,6 +22,10 @@ spring:
       hibernate:
         format_sql: ture
 
+server:
+  # 톰캣이 X-Forwarded-* 헤더를 인식하게 설정
+  forward-headers-strategy: framework
+
 logging:
   level:
     root: INFO
@@ -37,11 +41,9 @@ jwt:
   access-expiration-ms: 1800000
   refresh-expiration-ms: 1209600000
 
+# === AWS S3 (IAM Role 사용)
 cloud:
   aws:
-    credentials:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
     region:
       static: ap-northeast-2
     s3:

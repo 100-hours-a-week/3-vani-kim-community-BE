@@ -49,7 +49,8 @@ public class WebFilterConfig {
         //프론트엔트 출처 허용하기
         config.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
-                "http://127.0.0.1:3000"
+                "http://127.0.0.1:3000",
+                "https://vanicommu.click"
         ));
         //허용할 헤더
         config.addAllowedHeader("*");

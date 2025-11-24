@@ -41,11 +41,12 @@ public class UserService {
     }
     //TODO 테이블 수정 필요 User-UserAuth 이메일....
     public UserResponse getUserInfo(User user) {
-        String presignedGetUrl = s3Service.createPresignedGetUrl(user.getProfileImageKey());
-
-        return new UserResponse(user.getNickname(), presignedGetUrl);
-    }
-
+        String presignedGetUrl = null;
+        if (user.getProfileImageKey() != null) {  // ← 이것만!
+            presignedGetUrl = s3Service.createPresignedGetUrl(user.getProfileImageKey());
+        }
+    return new UserResponse(user.getNickname(), presignedGetUrl);
+}
     @Transactional
     public void updateUser(User user, UserUpdateRequest request) {
 
