@@ -1,62 +1,45 @@
-# Include any files or directories that you don't want to be copied to your
-# container here (e.g., local build artifacts, temporary files, etc.).
-#
-# For more help, visit the .dockerignore file reference guide at
-# https://docs.docker.com/go/build-context-dockerignore/
-
-**/.DS_Store
-**/.classpath
-**/.dockerignore
-**/.env
-**/.factorypath
-**/.git
-**/.gitignore
+# 1. IDE 및 에디터 설정 (루트 및 하위 모두 무시)
 **/.idea
-**/.project
-**/.sts4-cache
-**/.settings
-**/.toolstarget
-**/.vs
 **/.vscode
+**/.vs
+**/.settings
+**/.project
+**/.classpath
+**/.factorypath
+**/.sts4-cache
+**/.nb-gradle
+**/nbbuild
+**/nbdist
+**/nbproject
+
+# 2. OS 및 시스템 파일
+**/.DS_Store
+**/.env
+**/secrets.*.yaml
+**/values.*.yaml
+
+# 3. 빌드 결과물 및 캐시 (가장 중요!)
+**/build
+**/target
+**/out
+**/dist
+**/.gradle
+**/.mvn
 **/.next
 **/.cache
-**/*.dbmdl
-**/*.jfm
-**/charts
+**/*.class
+**/*.log
+**/*.jar
+**/*.war
+
+# 4. 버전 관리 (Git)
+**/.git
+**/.gitignore
+
+# 5. 도커 관련 (이미지 안에 도커 설정 파일이 들어갈 필요 없음)
 **/docker-compose*
 **/compose.y*ml
 **/Dockerfile*
-**/secrets.dev.yaml
-**/values.dev.yaml
-**/vendor
+**/charts
 LICENSE
 README.md
-**/*.class
-**/*.iml
-**/*.ipr
-**/*.iws
-**/*.log
-**/.apt_generated
-**/.gradle
-**/.gradletasknamecache
-**/.nb-gradle
-**/.springBeans
-**/build
-**/dist
-**/gradle-app.setting
-**/nbbuild
-**/nbdist
-**/nbproject/private
-**/target
-*.ctxt
-.mtj.tmp
-.mvn/timing.properties
-buildNumber.properties
-dependency-reduced-pom.xml
-hs_err_pid*
-pom.xml.next
-pom.xml.releaseBackup
-pom.xml.tag
-pom.xml.versionsBackup
-release.properties
-replay_pid*

@@ -1,0 +1,57 @@
+services:
+  # 프론트엔드
+  frontend:
+    image: vani-express-image:latest
+    container_name: node-frontend
+    networks:
+      - private-net
+
+  backend:
+    image: vani-spring-image:latest
+    container_name: spring-backend
+    networks:
+      - private-net
+      - db-private-net
+    environment:
+      - DB_URL=jdbc:mysql://community:3306/vanidb
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: mysql:8.0
+    container_name: community
+    networks:
+      - db-private-net
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./mysql-data:/var/lib/mysql # 데이터 영속성
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - db-private-net
+
+  # 5. 포테이너 에이전트 (Public의 Server가 접속)
+  agent:
+    image: portainer/agent:2.19.4
+    container_name: portainer_agent
+    ports:
+      - "9001:9001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - private-net
+
+
+networks:
+  private-net:
+    driver: bridge
+    internal: true
+  db-private-net:
+    driver: bridge
+    internal: true
