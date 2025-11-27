@@ -31,7 +31,7 @@ jobs:
 
       - name: Extract Jar Layers
         run: |
-          java -Djarmode=layertools -jar build/libs/*.jar extract --destination extracted
+          java -Djarmode=tools -jar build/libs/*.jar extract --destination extracted --layers --launcher
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
