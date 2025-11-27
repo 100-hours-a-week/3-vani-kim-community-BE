@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,6 +29,7 @@ import java.util.Optional;
  * @author vani
  * @since 10/14/25
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -38,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     //필터 제외 경로 목록
     private static final String[] EXCLUDED_PATHS = {
             "/api/v1/auth/users", "/api/v1/auth/tokens", "/api/v1/auth/nickname", "/api/v1/auth/email",
-            "/api/v1/auth/logout", "/api/v1/auth/refresh", "/api/v1/uploads/presign/temp",
+            "/api/v1/auth/logout", "/api/v1/auth/refresh",
             "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
             "/api/loadtest/**"  // 부하 테스트 API (개발/테스트 환경 전용)
     };
@@ -74,23 +76,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 토큰이 없다면 토큰 없음 오류
         //TODO 블랙리스트 추가시 변경 필수, 권한 설정 필요
         //TODO 글로벌 오류핸들러와 맞춰야함
-        if (token.isEmpty()) {
-            setErrorResponse(response, "T001", "Token is empty");
-            return;
-        } else {
-            try {
-                validateAndSetAttributes(token.get(), request);
-            } catch (ExpiredJwtException e) {
-                // 토큰 만료시
-                setErrorResponse(response, "T002", "Access Token Expired");
+        try {
+            if (token.isEmpty()) {
+                setErrorResponse(response, "T001", "Token is empty");
                 return;
-            } catch (SignatureException | MalformedJwtException e) {
-                //토큰 위조/형식 오류 예외
-                setErrorResponse(response, "T003", "Invalid Token");
-                return;
+            } else {
+                try {
+                    validateAndSetAttributes(token.get(), request);
+                } catch (ExpiredJwtException e) {
+                    // 토큰 만료시
+                    setErrorResponse(response, "T002", "Access Token Expired");
+                    return;
+                } catch (SignatureException | MalformedJwtException e) {
+                    //토큰 위조/형식 오류 예외
+                    setErrorResponse(response, "T003", "Invalid Token");
+                    return;
+                }
             }
+            filterChain.doFilter(request, response);
+        } catch (Exception e) { // 👈 [추가] 예상치 못한 모든 에러를 잡습니다.
+            log.error("🚨 [Filter Error] 필터 내부에서 치명적인 오류 발생: ", e); // 로그 찍기
+
+            // 클라이언트에게도 500이라고 알려주기
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"code\":\"FILTER_ERROR\", \"message\":\"" + e.getMessage() + "\"}");
         }
-        filterChain.doFilter(request, response);
     }
 
     /**
@@ -147,6 +158,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             request.setAttribute("role", role);
         } catch (IllegalArgumentException e) {
             throw new MalformedJwtException("Invalid role Value in Token");
+        } catch (NullPointerException e) { // 👈 이게 없어서 터졌을 수도 있음
+            log.error("Role is null");
+            throw new MalformedJwtException("Role is missing");
         }
     }
 }
