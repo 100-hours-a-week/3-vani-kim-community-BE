@@ -35,6 +35,9 @@
 # Gradle Wrapper JAR은 제외
 !gradle/wrapper/gradle-wrapper.jar
 
+# action->docker 복사가능하게
+!build/extracted
+
 # 4. 버전 관리 (Git)
 **/.git
 **/.gitignore
