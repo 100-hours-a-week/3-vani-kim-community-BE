@@ -1,33 +1,48 @@
 services:
   # 프론트엔드
   frontend:
-    image: vani-express-image:latest
+    image: registry.vanicommu.click/vani-express:latest
     container_name: node-frontend
+    ports:
+      - "3000:3000"
     networks:
       - private-net
 
   backend:
-    image: vani-spring-image:latest
+    image: registry.vanicommu.click/vani-springboot:latest
     container_name: spring-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USERNAME=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - private-net
       - db-private-net
-    environment:
-      - DB_URL=jdbc:mysql://community:3306/vanidb
-      - REDIS_HOST=redis
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   db:
     image: mysql:8.0
     container_name: community
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: community
     networks:
       - db-private-net
-    environment:
-      MYSQL_ROOT_PASSWORD: root
     volumes:
       - ./mysql-data:/var/lib/mysql # 데이터 영속성
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:alpine
@@ -47,11 +62,9 @@ services:
     networks:
       - private-net
 
-
 networks:
   private-net:
     driver: bridge
-    internal: true
   db-private-net:
     driver: bridge
     internal: true

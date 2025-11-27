@@ -18,7 +18,7 @@
 **/secrets.*.yaml
 **/values.*.yaml
 
-# 3. 빌드 결과물 및 캐시 (가장 중요!)
+# 3. 빌드 결과물 및 캐시
 **/build
 **/target
 **/out
@@ -32,6 +32,9 @@
 **/*.jar
 **/*.war
 
+# Gradle Wrapper JAR은 제외
+!gradle/wrapper/gradle-wrapper.jar
+
 # 4. 버전 관리 (Git)
 **/.git
 **/.gitignore
@@ -41,5 +44,13 @@
 **/compose.y*ml
 **/Dockerfile*
 **/charts
+
+
+# 6. 기타 파일
+**/nginx.conf
 LICENSE
 README.md
+LOAD_TEST_DATA_GUIDE.md
+LOADTEST_SCHEMA_CHECKLIST.md
+QUICK_START_LOADTEST.md
+**/dump.rdb
