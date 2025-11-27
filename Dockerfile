@@ -3,10 +3,10 @@ FROM gcr.io/distroless/java21-debian12
 
 WORKDIR /app
 
-COPY --from=builder /build/extracted/dependencies/ ./
-COPY --from=builder /build/extracted/spring-boot-loader/ ./
-COPY --from=builder /build/extracted/snapshot-dependencies/ ./
-COPY --from=builder /build/extracted/application/ ./
+COPY build/extracted/dependencies/ ./
+COPY build/extracted/spring-boot-loader/ ./
+COPY build/extracted/snapshot-dependencies/ ./
+COPY build/extracted/application/ ./
 
 USER nonroot
 EXPOSE 8080

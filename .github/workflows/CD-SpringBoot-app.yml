@@ -69,7 +69,7 @@ jobs:
       - name: Trigger CodeDeploy
         run: |
           aws deploy create-deployment \
-            --application-name ${{ vars.CODEDEPLOY_SPRINGBOOT_APP }}
+            --application-name ${{ vars.CODEDEPLOY_SPRINGBOOT_APP }} \
             --deployment-group-name ${{ vars.CODEDEPLOY_SPRINGBOOT_GROUP }} \
             --s3-location bucket=${{ vars.S3_BUCKET }}, key=${{ env.S3_KEY }},bundleType=zip \
             --description "Commit SHA: ${{ github.sha }}"
