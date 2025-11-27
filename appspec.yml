@@ -3,7 +3,7 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu/app-deployment
-    overwritten: yes
+    overwrite: yes
 
 permissions:
   - object: /home/ubuntu/app-deployment/scripts/deploy.sh
