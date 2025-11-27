@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class JwtTokenProvider {
     private final Key key;
     private final long accessExpirationsMs;
-    private final long refreshExpirationMs;
+    private final long refreshExpirationsMs;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
@@ -36,12 +36,12 @@ public class JwtTokenProvider {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes); //키 객체 생성
         this.accessExpirationsMs = accessExpirationMs;
-        this.refreshExpirationMs = refreshExpirationMs;
+        this.refreshExpirationsMs = refreshExpirationMs;
         log.info("JwtTokenProvider initialized.");
         log.info("  -> Access Token Expiration: {} ms ({} seconds)",
                 this.accessExpirationsMs, TimeUnit.MILLISECONDS.toSeconds(this.accessExpirationsMs));
         log.info("  -> Refresh Token Expiration: {} ms ({} seconds)",
-                this.refreshExpirationMs, TimeUnit.MILLISECONDS.toSeconds(this.refreshExpirationMs));
+                this.refreshExpirationsMs, TimeUnit.MILLISECONDS.toSeconds(this.refreshExpirationsMs));
     }
 
 
@@ -75,10 +75,10 @@ public class JwtTokenProvider {
      * */
     public String generateRefreshToken(String userId) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + refreshExpirationMs);
+        Date expiration = new Date(now.getTime() + refreshExpirationsMs);
 
         log.info("✅ Generating Refresh Token (UserId: {}). Expires in: {} seconds",
-                userId, TimeUnit.MILLISECONDS.toSeconds(refreshExpirationMs));
+                userId, TimeUnit.MILLISECONDS.toSeconds(refreshExpirationsMs));
 
         return Jwts.builder()
                 .setSubject(userId)
@@ -89,7 +89,7 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
-
+    //TODO 합치는 방법에 대해 고려
     /**
      * 리프레시 토큰 검증 메서드
      * */
