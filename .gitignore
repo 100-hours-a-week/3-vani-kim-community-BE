@@ -48,8 +48,12 @@ logs/
 
 *.rdb
 
-scripts/
+load-scripts/
+mysql-data/
 
 LOAD_TEST_DATA_GUIDE.md
 LOADTEST_SCHEMA_CHECKLIST.md
 QUICK_START_LOADTEST.md
+
+nginx.conf
+Dockerfile-old

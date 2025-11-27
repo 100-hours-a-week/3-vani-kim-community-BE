@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: community-backend-test
+
+  # 1. 실제 MySQL 대신 가짜 메모리 DB(H2) 사용
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL # MySQL 문법 호환 모드
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # 2. JPA 설정: 테스트 시작 시 테이블 생성 -> 종료 시 삭제
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect # H2용 방언 설정 필수
+
+  # 3. Redis 설정 (실제 연결은 안 되지만, 설정값 누락 에러 방지용)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# 4. AWS S3 가짜 설정 (실제 AWS 접근 막고 에러 방지)
+cloud:
+  aws:
+    credentials:
+      access-key: "test-access-key"
+      secret-key: "test-secret-key"
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: test-bucket
+    stack:
+      auto: false # CloudFormation 자동 구성 끄기 (테스트 속도 향상)
+
+# 5. JWT 가짜 키 (환경변수 없이 하드코딩)
+# 주의: HS512 알고리즘 사용 시 키가 너무 짧으면 에러 날 수 있어서 길게 적음
+jwt:
+  secret: "VGhpc0lzQVRlc3RTZWNyZXRLZXlGb3JDSVByb2Nlc3NBbmRJdElzQmFzZTY0RW5jb2RlZFNvSXRXaWxsV29ya1BlcmZlY3RseUZpbmVXaXRoSFM1MTJBbGdvcml0aG0="
+  access-expiration-ms: 1800000
+  refresh-expiration-ms: 1209600000
+
+logging:
+  level:
+    root: INFO

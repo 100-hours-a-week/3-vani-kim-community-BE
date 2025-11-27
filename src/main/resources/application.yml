@@ -5,9 +5,9 @@ spring:
     default: local
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:3306/community?serverTimezone=Asia/Seoul&useSSL=false
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/community?serverTimezone=Asia/Seoul&useSSL=false&useSSL=false&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    password: ${DB_PASSWORD:zsed1235}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   data:
@@ -24,8 +24,10 @@ spring:
 
 logging:
   level:
-    root: info
-    com.vani.week4.backend: debug
+    root: INFO
+    org.springframework.web: DEBUG  # 요청 들어오는 거 다 찍힘
+    org.springframework.security: DEBUG # 시큐리티 필터 통과 여부 찍힘
+    org.hibernate.SQL: DEBUG # 쿼리 나가는 거 찍힘
 
 # === AWS S3
 cloud:
@@ -34,7 +36,6 @@ cloud:
       static: ap-northeast-2
     s3:
       bucket: vani-main-bucket
-      auto: false
 
 # === JWT: 시크릿과 토큰 만료 시간 설정
 jwt:
