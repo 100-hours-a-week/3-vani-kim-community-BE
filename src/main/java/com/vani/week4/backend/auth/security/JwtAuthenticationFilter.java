@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     //필터 제외 경로 목록
     private static final String[] EXCLUDED_PATHS = {
             "/api/v1/auth/users", "/api/v1/auth/tokens", "/api/v1/auth/nickname", "/api/v1/auth/email",
-            "/api/v1/auth/logout", "/api/v1/auth/refresh",
+            "/api/v1/auth/logout", "/api/v1/auth/refresh", "/health",
             "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
             "/api/loadtest/**"  // 부하 테스트 API (개발/테스트 환경 전용)
     };
