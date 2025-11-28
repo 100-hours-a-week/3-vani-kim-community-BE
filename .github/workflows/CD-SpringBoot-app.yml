@@ -63,7 +63,7 @@ jobs:
         run: zip -r deployment.zip appspec.yml scripts
 
       - name: Upload to S3
-        run: aws s3 cp deployment.zip s3://${{ vars.S3_BUCKET }}/deployment.zip
+        run: aws s3 cp deployment.zip s3://${{ vars.S3_BUCKET }}/${{ env.S3_KEY }}
 
       # CodeDeploy 배포
       - name: Trigger CodeDeploy
