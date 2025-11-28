@@ -38,11 +38,29 @@ if [ $(docker ps -a -q -f name=$CONTAINER_NAME) ]; then
   docker rm $CONTAINER_NAME
 fi
 
+echo "AWS Parameter Store에서 환경변수 가져오는 중..."
+
+DB_HOST=$(aws ssm get-parameter --name "/community/db-host" --region ap-northeast-2 --query "Parameter.Value" --output text)
+DB_USERNAME=$(aws ssm get-parameter --name "/community/db-username" --region ap-northeast-2 --query "Parameter.Value" --output text)
+DB_PASSWORD=$(aws ssm get-parameter --name "/community/db-password" --region ap-northeast-2 --with-decryption --query "Parameter.Value" --output text)
+REDIS_HOST=$(aws ssm get-parameter --name "/community/redis-host" --region ap-northeast-2 --query "Parameter.Value" --output text)
+JWT_SECRET=$(aws ssm get-parameter --name "/community/jwt-secret" --region ap-northeast-2 --with-decryption --query "Parameter.Value" --output text)
+
+echo "DB_HOST: $DB_HOST"
+echo "REDIS_HOST: $REDIS_HOST"
+
+
 echo "Starting new container..."
 docker run -d \
   --name $CONTAINER_NAME \
   --restart always \
   -p $PORT_MAPPING \
+  -e DB_HOST=$DB_HOST \
+  -e DB_USERNAME=$DB_USERNAME \
+  -e DB_PASSWORD=$DB_PASSWORD \
+  -e REDIS_HOST=$REDIS_HOST \
+  -e JWT_SECRET=$JWT_SECRET \
+  -e TZ=Asia/Seoul \
   $IMAGE_URI
 
 echo "Cleaning ip old Docker images..."
