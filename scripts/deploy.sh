@@ -46,7 +46,7 @@ docker run -d \
   $IMAGE_URI
 
 echo "Cleaning ip old Docker images..."
-docker images prune -af --filter "until=48h"
+docker image prune -af --filter "until=48h"
 
 echo "Current disk usage:"
 docker system df
