@@ -43,7 +43,7 @@ docker run -d \
   --name $CONTAINER_NAME \
   --restart always \
   -p $PORT_MAPPING \
-  $REPOSITORY_URI:$IMAGE_TAG
+  $IMAGE_URI
 
 echo "Cleaning ip old Docker images..."
 docker images prune -af --filter "until=48h"
