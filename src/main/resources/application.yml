@@ -5,10 +5,14 @@ spring:
     default: local
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:3306/community?serverTimezone=Asia/Seoul&useSSL=false&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/community?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+    hikari:
+      max-lifetime: 1800000
+      connection-timeout: 30000
 
   data:
     redis:
@@ -22,12 +26,19 @@ spring:
       hibernate:
         format_sql: true
 
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
 logging:
   level:
     root: INFO
-    org.springframework.web: DEBUG  # 요청 들어오는 거 다 찍힘
-    org.springframework.security: DEBUG # 시큐리티 필터 통과 여부 찍힘
-    org.hibernate.SQL: DEBUG # 쿼리 나가는 거 찍힘
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+
+#Draining
+server:
+  shutdown: graceful
 
 # === AWS S3
 cloud:
@@ -42,3 +53,5 @@ jwt:
   secret: ${JWT_SECRET}
   access-expiration-ms: 1800000
   refresh-expiration-ms: 1209600000
+
+

@@ -1,0 +1,21 @@
+services:
+  backend:
+    image: 658173955655.dkr.ecr.ap-northeast-2.amazonaws.com/vani/springboot:${IMAGE_TAG}
+    container_name: spring-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+
+  # 포테이너 에이전트
+  agent:
+    image: portainer/agent:2.19.4
+    container_name: portainer_agent
+    restart: always
+    ports:
+      - "9001:9001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+
+
