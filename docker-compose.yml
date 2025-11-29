@@ -7,15 +7,4 @@ services:
     env_file:
       - .env
 
-  # 포테이너 에이전트
-  agent:
-    image: portainer/agent:2.19.4
-    container_name: portainer_agent
-    restart: always
-    ports:
-      - "9001:9001"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
-
 
