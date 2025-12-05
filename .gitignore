@@ -48,8 +48,5 @@ logs/
 
 *.rdb
 
-scripts/
-
-LOAD_TEST_DATA_GUIDE.md
-LOADTEST_SCHEMA_CHECKLIST.md
-QUICK_START_LOADTEST.md
+load-scripts/
+mysql-data/

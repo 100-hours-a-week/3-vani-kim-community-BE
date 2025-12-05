@@ -67,9 +67,23 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly 'com.h2database:h2'
 }
 
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:unchecked"
+}
+
+tasks.named('test') {
+    useJUnitPlatform {
+        // 커맨드라인에서 -PincludeTags=unit 처럼 넘겨주면 그것만 실행
+        if (project.hasProperty('includeTags')) {
+            includeTags project.findProperty('includeTags') as String
+        }
+        // 제외할 태그가 있으면 제외
+        if (project.hasProperty('excludeTags')) {
+            excludeTags project.findProperty('excludeTags') as String
+        }
+    }
 }

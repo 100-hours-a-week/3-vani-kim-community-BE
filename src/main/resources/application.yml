@@ -5,10 +5,14 @@ spring:
     default: local
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:3306/community?serverTimezone=Asia/Seoul&useSSL=false
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/community?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+    hikari:
+      max-lifetime: 1800000
+      connection-timeout: 30000
 
   data:
     redis:
@@ -22,10 +26,19 @@ spring:
       hibernate:
         format_sql: true
 
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
 logging:
   level:
-    root: info
-    com.vani.week4.backend: debug
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+
+#Draining
+server:
+  shutdown: graceful
 
 # === AWS S3
 cloud:
@@ -34,10 +47,11 @@ cloud:
       static: ap-northeast-2
     s3:
       bucket: vani-main-bucket
-      auto: false
 
 # === JWT: 시크릿과 토큰 만료 시간 설정
 jwt:
   secret: ${JWT_SECRET}
   access-expiration-ms: 1800000
   refresh-expiration-ms: 1209600000
+
+

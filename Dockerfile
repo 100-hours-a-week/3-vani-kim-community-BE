@@ -1,34 +1,17 @@
-FROM gradle:8.5-jdk21 AS builder
-
-WORKDIR /build
-
-COPY gradlew ./
-COPY gradle/ ./gradle/
-COPY build.gradle settings.gradle ./
-
-RUN ./gradlew dependencies --no-daemon
-
-COPY . .
-
-RUN ./gradlew build --no-daemon -x test
-
-FROM amazoncorretto:21-alpine-jdk
+# Arm 빌드 최적화를 위해 빌드 스테이지 외부화
+FROM gcr.io/distroless/java21-debian12
 
 WORKDIR /app
 
-COPY --from=builder /build/build/libs/*.jar app.jar
+COPY build/extracted/dependencies/ ./
+COPY build/extracted/spring-boot-loader/ ./
+COPY build/extracted/snapshot-dependencies/ ./
+COPY build/extracted/application/ ./
 
+USER nonroot
 EXPOSE 8080
 
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
-USER appuser
+ENV TZ=Asia/Seoul
+ENV JAVA_TOOL_OPTIONS="-Duser.timezone=Asia/Seoul"
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]

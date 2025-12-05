@@ -44,12 +44,14 @@ public class WebFilterConfig {
     public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
         CorsConfiguration config = new CorsConfiguration();
 
-        //쿠키 교환 가능하게
+        // 쿠키 및 인증 정보(Authorization 헤더) 허용
         config.setAllowCredentials(true);
         //프론트엔트 출처 허용하기
-        config.setAllowedOrigins(Arrays.asList(
+        config.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:3000",
-                "http://127.0.0.1:3000"
+                "http://127.0.0.1:3000",
+                "https://*.vanicommu.click",
+                "https://vanicommu.click"
         ));
         //허용할 헤더
         config.addAllowedHeader("*");

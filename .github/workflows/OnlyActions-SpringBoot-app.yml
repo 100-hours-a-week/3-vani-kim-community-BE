@@ -1,0 +1,96 @@
+name: SpringBoot CI/CD with Docker
+
+env:
+  S3_KEY: action/backend/docker-compose.yml
+
+on:
+  push:
+    branches: [ "features/onlyactions" ]
+
+jobs:
+  Integration-Test-and-Deployment:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+      # JDK
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: 'gradle'
+      # 테스트
+      # 유닛 테스트 우선(컴파일 클래스 재사용 보장)
+      - name: Run Unit Tests
+        run: ./gradlew test -PincludeTags=unit --rerun-tasks
+
+      # 2단계: 통합 테스트만 실행
+      - name: Run Integration Tests
+        run: ./gradlew test -PincludeTags=integration --rerun-tasks
+
+      # 빌드
+      - name: Build JAR
+        run: ./gradlew bootJar --no-daemon -x test
+
+      # 레이어 분리(캐시 최적화)
+      - name: Extract Jar Layers
+        run: |
+          java -Djarmode=tools -jar build/libs/*.jar extract --destination build/extracted --layers --launcher
+
+      # ARM 환경 설정
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # 도커 빌드 셋업
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # OIDC 인증
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # 이미지 태그 생성
+      - name: Create Image Tag
+        id: image-tag
+        run: echo "TAG=sha-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      # ECR 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 이미지 빌드&푸시
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64
+          tags: ${{ steps.login-ecr.outputs.registry }}/vani/springboot:${{ steps.image-tag.outputs.TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # docker-compose에 태그 반영하기
+      - name: Update docker-compose.yml
+        run: |
+          export IMAGE_TAG=${{ steps.image-tag.outputs.TAG }}
+          envsubst < docker-compose.yml > deploy_compose.yml
+          mv deploy_compose.yml docker-compose.yml
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp docker-compose.yml s3://${{ vars.ACTIONS_S3_BUCKET }}/$S3_KEY
+
+      # ASG Refresh
+      - name: Start ASG Instance Refresh
+        run: |
+          aws autoscaling start-instance-refresh \
+          --auto-scaling-group-name "${{ vars.BACK_ASG_NAME }}" \
+          --preferences '{"MinHealthyPercentage":50,"InstanceWarmup":60}'

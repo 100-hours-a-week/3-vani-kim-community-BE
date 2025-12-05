@@ -41,8 +41,11 @@ public class UserService {
     }
     //TODO 테이블 수정 필요 User-UserAuth 이메일....
     public UserResponse getUserInfo(User user) {
-        String presignedGetUrl = s3Service.createPresignedGetUrl(user.getProfileImageKey());
+        String key = user.getProfileImageKey();
 
+        String presignedGetUrl = (key != null && !key.isBlank())
+                ? s3Service.createPresignedGetUrl(key)
+                : null;
         return new UserResponse(user.getNickname(), presignedGetUrl);
     }
 
