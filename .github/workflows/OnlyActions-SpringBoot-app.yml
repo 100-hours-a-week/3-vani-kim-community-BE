@@ -24,7 +24,7 @@ jobs:
           distribution: temurin
           cache: 'gradle'
       # 테스트
-      - name: Test
+      - name: Run All Tests
         run: ./gradlew test
 
       # 빌드

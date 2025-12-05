@@ -12,6 +12,7 @@ import com.vani.week4.backend.post.service.PostService;
 import com.vani.week4.backend.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.*;
  * 게시글 생성 서비스 테스트
  * @author vani
  */
+@Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
 
