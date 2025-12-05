@@ -24,8 +24,13 @@ jobs:
           distribution: temurin
           cache: 'gradle'
       # 테스트
-      - name: Run All Tests
-        run: ./gradlew test
+      # 유닛 테스트 우선(컴파일 클래스 재사용 보장)
+      - name: Run Unit Tests
+        run: ./gradlew test -PincludeTags=unit --rerun-tasks
+
+      # 2단계: 통합 테스트만 실행
+      - name: Run Integration Tests
+        run: ./gradlew test -PincludeTags=integration --rerun-tasks
 
       # 빌드
       - name: Build JAR
