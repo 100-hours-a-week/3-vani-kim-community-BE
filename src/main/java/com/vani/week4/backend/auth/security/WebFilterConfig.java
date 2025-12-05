@@ -50,7 +50,8 @@ public class WebFilterConfig {
         config.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
-                "https://*.vanicommu.click"
+                "https://*.vanicommu.click",
+                "https://vanicommu.click"
         ));
         //허용할 헤더
         config.addAllowedHeader("*");
