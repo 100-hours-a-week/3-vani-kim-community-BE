@@ -81,9 +81,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        if(!authService.checkPassword(user, request.password())) {
-            throw new InvalidPasswordException(ErrorCode.RESOURCE_CONFLICT);
-        }
+        authService.checkPassword(user, request.password());
 
         user.updateUserStatus(UserStatus.DELETED);
     }

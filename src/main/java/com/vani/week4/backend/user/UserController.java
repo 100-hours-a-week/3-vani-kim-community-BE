@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final AuthService authService;
     //생성의 컨트롤러는 Auth의 회원가입과 통합되었음
 
     //회원 정보 조회
@@ -52,17 +51,6 @@ public class UserController {
             @Valid @RequestBody UserUpdateRequest request) {
 
         userService.updateUser(user, request);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    //비밀 번호 수정
-    @PatchMapping("/me/password")
-    public ResponseEntity<Void> updatePassword(
-            @CurrentUser User user,
-            @Valid @RequestBody PasswordUpdateRequest request) {
-
-        authService.updatePassword(user, request);
 
         return ResponseEntity.noContent().build();
     }

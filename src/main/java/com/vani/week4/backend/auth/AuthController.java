@@ -5,8 +5,11 @@ import com.vani.week4.backend.auth.dto.response.LoginResponse;
 import com.vani.week4.backend.auth.dto.response.TokenResponse;
 import com.vani.week4.backend.auth.dto.response.SignUpResponse;
 import com.vani.week4.backend.auth.service.AuthService;
+import com.vani.week4.backend.global.CurrentUser;
 import com.vani.week4.backend.global.ErrorCode;
 import com.vani.week4.backend.global.exception.InvalidTokenException;
+import com.vani.week4.backend.user.dto.PasswordUpdateRequest;
+import com.vani.week4.backend.user.entity.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,7 +50,7 @@ public class AuthController {
 
     /**
      * 로그인/토큰 발급 메서드
-     * Access토큰은 보안헤더에, refresh토큰은 쿠키에 담아, 사용자의 닉네입과 함께 반환한다.
+     * Access토큰은 보안헤더에, refresh토큰은 쿠키에 담아, 사용자의 닉네임과 함께 반환한다.
      * @return : 사용자의 닉네임
      */
     @PostMapping("/tokens")
@@ -107,9 +110,6 @@ public class AuthController {
                     log.warn("🚨 [AuthController] 쿠키에서 리프레시 토큰을 찾을 수 없습니다!");
                     return new InvalidTokenException(ErrorCode.UNAUTHORIZED);
                     });
-        log.info("✅ [AuthController] 쿠키에서 리프레시 토큰 추출 성공");
-        //TODO 오류를 확인하기 위해서 추가, 토큰 값이 보이는건 안 좋으니 지워야함.
-        log.debug("추출된 토큰 값(일부): {}", refreshToken.substring(0, Math.min(10, refreshToken.length())));
 
         TokenResponse tokenResponse = authService.reissueTokens(refreshToken);
 
@@ -138,6 +138,27 @@ public class AuthController {
         authService.checkDuplicatedNickname(request);
         return ResponseEntity.ok("사용 가능한 닉네임입니다.");
     }
+
+    // 비밀번호 변경을 위한 현재 비밀 번호 확인메서드
+    @PostMapping("/password")
+    public ResponseEntity<?> checkPassword(
+            @Valid @RequestBody CheckPasswordRequest request,
+            @CurrentUser User user) {
+        authService.checkPassword(user, request.password());
+        return ResponseEntity.ok("비밀번호가 일치합니다.");
+    }
+
+    //비밀 번호 수정
+    @PatchMapping("/password")
+    public ResponseEntity<?> updatePassword(
+            @CurrentUser User user,
+            @Valid @RequestBody PasswordUpdateRequest request) {
+
+        authService.updatePassword(user, request);
+
+        return ResponseEntity.ok("비밀번호가 변경되었습니다.");
+    }
+
     /**
      * 공통 토큰 쿠키 생성 로직 메서드
      * httpOnly : True, secure : True, sameSite : None

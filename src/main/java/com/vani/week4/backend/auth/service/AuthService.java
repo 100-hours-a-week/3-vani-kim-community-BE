@@ -82,6 +82,7 @@ public class AuthService {
         if (!passwordEncoder.matches(request.password(), auth.getPasswordHash())){
             throw new InvalidPasswordException(ErrorCode.RESOURCE_CONFLICT);
         }
+
         //유저 프로필 및 상태 확인
         User user = auth.getUser();
         if(user == null){
@@ -202,14 +203,17 @@ public class AuthService {
     }
 
     /**
-     * 디비에 저장된 비밀번호와 확인하는 메서드 \
+     * 디비에 저장된 비밀번호와 확인하는 메서드
      * */
-    public boolean checkPassword(User user, String password){
+    public void checkPassword(User user, String password){
         Auth auth = authRepository.findByUserAndProvider(user, ProviderType.LOCAL)
                 .orElseThrow(() -> new AuthNotFoundException(ErrorCode.RESOURCE_NOT_FOUND));
 
         String E_PASSWORD = auth.getPasswordHash();
-        return passwordEncoder.matches(password, E_PASSWORD);
+        boolean passwordMatches = passwordEncoder.matches(password, E_PASSWORD);
+        if (!passwordMatches) {
+            throw new InvalidPasswordException(ErrorCode.RESOURCE_CONFLICT);
+        }
     }
 
     //TODO 전에 사용한적 있는 비번 방지
