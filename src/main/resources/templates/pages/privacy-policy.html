@@ -5,17 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>개인정보 처리 방침 - 아무말말말말 대잔치</title>
 
-    <link rel="stylesheet" th:href="@{/css/layout.css}">
-    <link rel="stylesheet" th:href="@{/css/header.css}">
-    <link rel="stylesheet" th:href="@{/css/footer.css}">
-
     <link rel="stylesheet" th:href="@{/css/privacy.css}">
+    <style>
+        body {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
 </head>
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+    <button class="back-button" onclick="history.back()">← 뒤로가기</button>
 
-<div class="main-wrapper no-sidebar">
     <main class="content terms-content">
 
         <h2>[서비스 이름] 개인정보 처리 방침</h2>
@@ -128,9 +144,6 @@
         <p>이 개인정보 처리 방침은 [시행일자, 예: 2025년 10월 27일]부터 적용됩니다. 내용의 추가, 삭제 및 수정이 있을 시에는 개정 최소 7일 전부터 공지사항을 통하여 고지할 것입니다.</p>
 
     </main>
-</div>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 </html>
