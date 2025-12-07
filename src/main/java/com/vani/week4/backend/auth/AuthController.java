@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -38,7 +39,8 @@ import java.util.Optional;
 public class AuthController {
 
     private final AuthService authService;
-    private static final int REFRESH_TOKEN_EXPIRATION = 1209600;//14 * 24 * 3600 14일
+
+    @Value("${jwt.refresh-expiration-ms}") int refreshExpirationMs;
 
     // 회원가입
     @PostMapping("/users")
@@ -62,7 +64,7 @@ public class AuthController {
         response.setHeader("Authorization","Bearer " + loginResponse.accessToken());
         addTokenCookie(
                 response, "refreshToken", loginResponse.refreshToken(),
-                REFRESH_TOKEN_EXPIRATION, "/auth/refresh"
+                refreshExpirationMs, "/auth/refresh"
         );
         Map<String, String> responseBody = Map.of("nickname", loginResponse.nickname());
 
@@ -117,7 +119,7 @@ public class AuthController {
         response.setHeader("Authorization","Bearer " + tokenResponse.accessToken());
         addTokenCookie(
                 response, "refreshToken", tokenResponse.refreshToken(),
-                REFRESH_TOKEN_EXPIRATION, "/auth/refresh"
+                refreshExpirationMs, "/auth/refresh"
         );
 
         return ResponseEntity.noContent().build();

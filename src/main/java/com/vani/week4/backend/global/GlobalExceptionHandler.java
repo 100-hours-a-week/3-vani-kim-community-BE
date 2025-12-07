@@ -143,6 +143,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, code.getStatus());
     }
 
+    @ExceptionHandler(TokenSaveException.class)
+    public ResponseEntity<ErrorResponse> handleTokenSave(TokenSaveException ex){
+        ErrorCode code = ex.getErrorCode();
+
+        ErrorResponse response = new ErrorResponse(code.getCode(), ex.getMessage());
+
+        log.warn("토큰 저장 중 오류 : code={}, msg={}", code.getMessage(), ex.getMessage());
+
+        return new ResponseEntity<>(response, code.getStatus());
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex){
         ErrorCode code = ex.getErrorCode();

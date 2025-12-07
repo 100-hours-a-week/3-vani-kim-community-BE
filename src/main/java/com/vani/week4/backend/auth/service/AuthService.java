@@ -135,8 +135,6 @@ public class AuthService {
                 log.warn("🚨 갱신 실패: Redis에 [{}] 키로 저장된 토큰이 없습니다. (이미 로그아웃/만료됨)", userId);
             } else {
                 log.warn("🚨 갱신 실패: 전달된 토큰과 저장된 토큰이 불일치합니다. (Stale Token 가능성)");
-//                log.debug("  (Cookie) ➡️  전달된 토큰: {}", refreshToken);
-//                log.debug("  (Redis)  ➡️  저장된 토큰: {}", storedRefreshToken);
             }
             throw new InvalidTokenException(ErrorCode.UNAUTHORIZED);
         }
@@ -157,6 +155,7 @@ public class AuthService {
             );
         } catch (Exception e) {
             log.error("Redis에 리프레시 토큰 저장 실패. UserId: {}", userId, e);
+            throw new TokenSaveException("리프레시 토큰 저장 중 오류 발생, 로그아웃", ErrorCode.UNAUTHORIZED);
         }
         return new TokenResponse(newAccessToken, newRefreshToken);
     }
@@ -166,6 +165,7 @@ public class AuthService {
      * 토큰을 폐기하는 메서드
      * @param refreshToken : 요청자에게 전달 받은 refresh 토큰
      * */
+    // TODO 인증 서비스가 아니면 어디서 할지 확인. 프론트에서 해야하는지 고민
     public void deleteToken(String refreshToken) {
         String userId = getUserIdFromToken(refreshToken);
 
@@ -231,7 +231,7 @@ public class AuthService {
     /**
      * 토큰에서 유저 아이디를 가져오는 메서드
      * */
-    //TODO 모든 에러가 결국 같은것을 던져서 뭔지 알아 보기가 어렵다. 수정 필요
+    // TODO currentUser 어노테이션과 하는일이 같음 변경 필요
     private String getUserIdFromToken(String token){
         Claims claims;
         //토큰 자체 유효성 검사
