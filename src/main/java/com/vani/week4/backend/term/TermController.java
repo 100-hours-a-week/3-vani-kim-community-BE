@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 //HTML반환
 @Controller
-@RequestMapping("api/v1")
 public class TermController {
 
     @GetMapping("/terms-of-service")
@@ -28,4 +27,3 @@ public class TermController {
         return "pages/privacy-policy";
     }
 }
-
