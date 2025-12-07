@@ -5,7 +5,7 @@ env:
 
 on:
   push:
-    branches: [ "features/onlyactions" ]
+    branches: [ "main" ]
 
 jobs:
   Integration-Test-and-Deployment:
