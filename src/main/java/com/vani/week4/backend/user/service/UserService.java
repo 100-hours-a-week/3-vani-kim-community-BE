@@ -42,11 +42,11 @@ public class UserService {
     //TODO 테이블 수정 필요 User-UserAuth 이메일....
     public UserResponse getUserInfo(User user) {
         String key = user.getProfileImageKey();
-
+        String email = authService.getEmailFromUserId(user.getId());
         String presignedGetUrl = (key != null && !key.isBlank())
                 ? s3Service.createPresignedGetUrl(key)
                 : null;
-        return new UserResponse(user.getNickname(), presignedGetUrl);
+        return new UserResponse(user.getNickname(), email, presignedGetUrl);
     }
 
     @Transactional

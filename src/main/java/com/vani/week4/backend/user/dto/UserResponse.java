@@ -7,6 +7,7 @@ package com.vani.week4.backend.user.dto;
  */
 public record UserResponse(
     String nickname,
+    String email,
     String presignedProfileImageUrl
 ) {}
 

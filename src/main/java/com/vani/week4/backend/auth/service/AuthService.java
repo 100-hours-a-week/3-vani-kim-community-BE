@@ -131,13 +131,6 @@ public class AuthService {
         String storedRefreshToken = redisTemplate.opsForValue().get(userId);
 
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-            if (storedRefreshToken == null) {
-                log.warn("🚨 갱신 실패: Redis에 [{}] 키로 저장된 토큰이 없습니다. (이미 로그아웃/만료됨)", userId);
-            } else {
-                log.warn("🚨 갱신 실패: 전달된 토큰과 저장된 토큰이 불일치합니다. (Stale Token 가능성)");
-//                log.debug("  (Cookie) ➡️  전달된 토큰: {}", refreshToken);
-//                log.debug("  (Redis)  ➡️  저장된 토큰: {}", storedRefreshToken);
-            }
             throw new InvalidTokenException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -247,5 +240,12 @@ public class AuthService {
         }
 
         return claims.getSubject();
+    }
+
+    @Transactional(readOnly = true)
+    public String getEmailFromUserId(String Id){
+        return authRepository.findByUserId(Id)
+                .map(Auth::getEmail)
+                .orElseThrow(() -> new UserNotFoundException(ErrorCode.RESOURCE_NOT_FOUND));
     }
 }
