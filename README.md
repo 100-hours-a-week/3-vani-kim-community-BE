@@ -1,2 +1,79 @@
 # 3-vani-kim-community
-week4 community site backend API(JAVA with SpringBoot)
+# ☁️ AWS Scalable Architecture for 1M MAU Community Service
+
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-257bd6?style=for-the-badge&logo=docker&logoColor=white)
+
+> **Project Summary** > 100만 MAU(월간 활성 사용자)와 10만 DAU 규모의 트래픽을 가정하여, **고가용성(High Availability)** 과 **비용 효율성(Cost Efficiency)** 을 극대화한 AWS 인프라 설계 및 구축 프로젝트입니다.
+
+---
+
+## 🎯 Key Achievements (핵심 성과)
+
+비즈니스 요구사항을 분석하여 정량적인 근거를 바탕으로 인프라를 설계했습니다.
+
+* **💸 비용 최적화 (Cost Optimization)**
+    * [cite_start]EC2 **Spot Instance**와 **AWS Graviton(ARM)** 프로세서를 도입하여 동급 x86 온디맨드 대비 **컴퓨팅 비용 약 60% 절감** 설계 [cite: 914, 915, 946]
+    * [cite_start]고가의 NAT Gateway 대신 **VPC Endpoint**를 활용하여 데이터 전송 비용 절감 및 보안 강화 [cite: 879, 881]
+* **📈 확장성 및 안정성 (Scalability & Stability)**
+    * [cite_start]예상 피크 트래픽(**약 2,300 QPS**)에 대응하기 위한 **Auto Scaling Group(ASG)** 및 **ALB** 구성 [cite: 684, 991]
+    * [cite_start]**Redis** 캐싱을 통해 '좋아요' 기능의 DB 병목(Hot Key Issue) 해결 및 응답 속도 개선 [cite: 1043, 1122]
+* **⚡ 서버리스 아키텍처 (Serverless)**
+    * [cite_start]이미지 업로드 부하를 EC2에서 분리하기 위해 **Lambda**와 **S3 Presigned URL**을 활용한 Direct Upload 구현 [cite: 19, 1181]
+
+---
+
+## 🏗️ Architecture Overview
+
+단일 장애점(SPOF)을 제거하고, 퍼블릭/프라이빗 서브넷을 통한 보안 격리 구조를 적용했습니다.
+
+![AWS Architecture Diagram](docs/images/AWS_structure.png)
+
+> **👉 [상세 아키텍처 설계 및 기술적 의사결정 과정 보러가기 (docs/ARCHITECTURE.md)](./docs/ARCHITECTURE.md)** > *(트래픽 산정 근거, 비용 분석표, NAT Gateway 제거 이유 등 상세 내용)*
+
+---
+
+## 🛠️ Tech Stack & Infrastructure
+
+| Category | Technology | Usage & Reason |
+|:---:|:---:|:---|
+| **Compute** | AWS EC2 (Spot + On-Demand) | [cite_start]기본 부하는 On-Demand, 피크 트래픽은 Spot으로 비용 절감 [cite: 939] |
+| **Serverless** | AWS Lambda (Node.js) | [cite_start]이미지 업로드 권한(Presigned URL) 발급 및 가벼운 로직 처리 [cite: 7] |
+| **Network** | VPC, ALB, Route53 | 논리적 망 분리 및 트래픽 로드 밸런싱 |
+| **Database** | Amazon RDS (MySQL) | [cite_start]비용 효율성을 고려하여 Aurora 대신 MySQL 선택 [cite: 1079] |
+| **Cache** | Amazon ElastiCache (Redis) | [cite_start]DB 부하 분산 및 세션/카운트 데이터 캐싱 [cite: 1114] |
+| **Storage** | Amazon S3 | [cite_start]정적 리소스 저장 및 수명 주기(Lifecycle) 정책 적용 [cite: 1126] |
+| **Monitoring** | CloudWatch | [cite_start]CPU Credit, 메모리, DB 커넥션 등 주요 지표 모니터링 [cite: 1211] |
+
+---
+
+## 💻 Backend Highlights & Data Strategy
+
+DevOps 엔지니어로서 **"배포할 애플리케이션의 특성"**을 깊이 이해하고 인프라를 설계했습니다. 단순한 CRUD가 아닌 대용량 트래픽 처리를 위한 백엔드 설계를 적용했습니다.
+
+* **🚀 동시성 제어 (Concurrency Control)**
+    * 인기 게시글의 '좋아요' 클릭 시 발생하는 DB Row Lock 병목을 해소하기 위해 **Redis Set** 기반의 캐싱 및 비동기 쓰기 전략 구현
+* **🔐 Stateless 인증 아키텍처**
+    * Auto Scaling 환경에서 세션 정합성 문제를 원천 차단하기 위해 **JWT** 기반 인증 시스템 구축
+* **⚡ 부하 분산 설계 (Offloading)**
+    * 웹 서버(Spring Boot)의 리소스를 비즈니스 로직에 집중시키기 위해, 이미지 처리 및 업로드 권한 발급 로직을 **AWS Lambda**로 분리
+
+> **👉 [DB 설계(ERD), 캐싱 전략 등 백엔드 상세 기술 문서 보러가기 (docs/BACKEND_DESIGN.md)](./docs/BACKEND_DESIGN.md)**
+
+---
+## 📂 Project Structure
+
+인프라 설계 문서와 백엔드 코드를 분리하여 관리하고 있습니다.
+
+```bash
+├── docs/
+│   ├── ARCHITECTURE.md       # 인프라 설계, 용량 산정, 비용 분석 보고서 (Main)
+│   ├── BACKEND_DESIGN.md     # DB 스키마(ERD), API 명세, 백엔드 구조
+│   └── TROUBLESHOOTING.md    # 성능 테스트 및 트러블슈팅 로그
+├── src/                      # Application Source Code
+│   ├── main/java/...
+│   └── ...
+└── README.md                 # Project Overview
