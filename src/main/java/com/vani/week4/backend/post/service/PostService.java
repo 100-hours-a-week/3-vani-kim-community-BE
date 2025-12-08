@@ -92,13 +92,21 @@ public class PostService {
      * */
     private PostSummaryResponse toPostSummaryResponse(Post post) {
         String postId = post.getId();
+
+        String profileImageKey = post.getUser().getProfileImageKey();
+        String authorImageUrl = null;
+
+        if (profileImageKey != null && !profileImageKey.isBlank()) {
+            authorImageUrl = s3Service.createPresignedGetUrl(profileImageKey);
+        }
+
         return new PostSummaryResponse(
                 postId,
                 post.getTitle(),
                 post.getCreatedAt(),
                 new PostSummaryResponse.Author(
                         post.getUser().getNickname(),
-                        post.getUser().getProfileImageKey()
+                        authorImageUrl
                 ),
                 new PostSummaryResponse.Stats(
                         likeService.getLikeCount(postId),
@@ -204,6 +212,14 @@ public class PostService {
     private PostDetailResponse toPostDetailResponse(Post post, String postImageUrl, Boolean isLiked) {
         PostContent content = post.getPostContent();
         User user = post.getUser();
+
+        String profileImageKey = user.getProfileImageKey();
+        String authorProfileUrl = null;
+
+        if (profileImageKey != null && !profileImageKey.isBlank()) {
+            authorProfileUrl = s3Service.createPresignedGetUrl(profileImageKey);
+        }
+
         String postId = post.getId();
         return new PostDetailResponse(
                 postId,
@@ -215,7 +231,8 @@ public class PostService {
                         postImageUrl
                 ),
                 new PostDetailResponse.Author(
-                        user.getNickname()
+                        user.getNickname(),
+                        authorProfileUrl
                 ),
                 new PostDetailResponse.Stats(
                         likeService.getLikeCount(postId),

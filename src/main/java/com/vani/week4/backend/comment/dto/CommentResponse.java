@@ -25,6 +25,6 @@ public record CommentResponse(
 ) {
     public record Author (
             String nickname,
-            String profileImageKey
+            String authorProfileImageUrl
     ) {}
 }

@@ -10,6 +10,7 @@ import com.vani.week4.backend.comment.repository.CommentRepository;
 import com.vani.week4.backend.global.ErrorCode;
 import com.vani.week4.backend.global.dto.SliceResponse;
 import com.vani.week4.backend.global.exception.*;
+import com.vani.week4.backend.infra.S3.S3Service;
 import com.vani.week4.backend.post.entity.Post;
 import com.vani.week4.backend.post.repository.PostRepository;
 import com.vani.week4.backend.user.entity.User;
@@ -37,6 +38,7 @@ import java.util.Map;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final S3Service s3Service;
 
     /**
      * 댓글 조회 메서드,커서 기반 페이징
@@ -103,9 +105,17 @@ public class CommentService {
 
     //dto 변환 헬퍼메서드
     private CommentResponse.Author toAuthor(User user) {
+
+        String profileImageKey = user.getProfileImageKey();
+        String authorProfileUrl = null;
+
+        if (profileImageKey != null && !profileImageKey.isBlank()) {
+            authorProfileUrl = s3Service.createPresignedGetUrl(profileImageKey);
+        }
+
         return new CommentResponse.Author(
                 user.getNickname(),
-                user.getProfileImageKey()
+                authorProfileUrl
         );
     }
 
