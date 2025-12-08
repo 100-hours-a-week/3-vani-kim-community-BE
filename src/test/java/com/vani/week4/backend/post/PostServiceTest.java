@@ -67,8 +67,13 @@ class PostServiceTest {
                 null
         );
 
+        String expectedAuthorImageUrl = "https://example.com/presigned/profile-image-key";
+
         when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(likeService.getLikeCount(anyString())).thenReturn(0);
+        // 작성자 프로필 presigned URL 목킹
+        when(s3Service.createPresignedGetUrl("profile-image-key"))
+                .thenReturn(expectedAuthorImageUrl);
 
         // when
         PostDetailResponse response = postService.createPost(testUser, request);
@@ -78,15 +83,24 @@ class PostServiceTest {
         assertThat(response.postId()).isNotNull();
         assertThat(response.title()).isEqualTo("테스트 게시글 제목");
         assertThat(response.contentDetail().content()).contains("테스트 게시글 내용입니다.");
+
+        // 게시글 자체 이미지 URL은 없어야 함
         assertThat(response.contentDetail().postImageUrl()).isNull();
+
+        // 작성자 정보 검증
         assertThat(response.author().nickname()).isEqualTo("테스트유저");
+        assertThat(response.author().authorProfileUrl())
+                .isEqualTo(expectedAuthorImageUrl);
+
         assertThat(response.stats().likeCount()).isEqualTo(0);
         assertThat(response.stats().commentCount()).isEqualTo(0);
         assertThat(response.stats().viewCount()).isEqualTo(0);
         assertThat(response.stats().isLiked()).isFalse();
 
         verify(postRepository, times(1)).save(any(Post.class));
-        verify(s3Service, never()).createPresignedGetUrl(anyString());
+
+        // S3 presigned URL은 "작성자 프로필" 1번만 호출되는 게 맞음
+        verify(s3Service, times(1)).createPresignedGetUrl("profile-image-key");
     }
 
     @Test
