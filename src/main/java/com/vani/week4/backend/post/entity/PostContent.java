@@ -25,7 +25,7 @@ public class PostContent {
     private Post post;
 
     @Lob                        //longtext
-    @Column(nullable = false)
+    @Column(nullable = false,  columnDefinition = "LONGTEXT")
     private String content;
 
     @Column(name = "post_image_key")
