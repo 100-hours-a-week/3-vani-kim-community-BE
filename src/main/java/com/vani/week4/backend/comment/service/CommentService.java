@@ -245,11 +245,13 @@ public class CommentService {
     }
 
     /**
-     * 댓글 삭제 메서드(Soft delete), enduser에게 삭제됨 표시
+     * 댓글 삭제 메서드
+     * TODO (Soft delete), enduser에게 삭제됨 표시
      * */
     @Transactional
     public void deleteComment(String postId, String commentId, User user){
-        postRepository.findById(postId)
+
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(ErrorCode.RESOURCE_NOT_FOUND));
 
         Comment comment = commentRepository.findById(commentId)
@@ -259,6 +261,7 @@ public class CommentService {
             throw new UnauthorizedException(ErrorCode.UNAUTHORIZED);
         }
         commentRepository.delete(comment);
+        post.decreaseCommentCount();
     }
 
 }

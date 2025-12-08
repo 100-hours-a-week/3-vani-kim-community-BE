@@ -80,6 +80,7 @@ public class Post {
     public void incrementCommentCount() {
         this.commentCount++;
     }
+    public void decreaseCommentCount() { this.commentCount--; }
     public void updateLikeCount(Integer likeCount) {
         this.likeCount = likeCount;
     }
