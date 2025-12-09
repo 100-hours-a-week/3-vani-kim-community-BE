@@ -8,8 +8,7 @@
 
 전체 시스템은 **가용성(Availability)**, **확장성(Scalability)**, **비용 효율성(Cost Efficiency)** 을 최우선으로 고려하여 설계되었습니다.
 
-<img src="images/AWS_structure.png" alt="AWS Architecture Overview">
-
+![AWS Architecture Diagram](docs/images/AWS_structure.png)
 *▲ [그림 1] 전체 AWS 아키텍처 구성도 (VPC, Public/Private Subnet 구조 및 각 서비스 연결)*
 
 ### 🛠 Tech Stack & Infrastructure
@@ -84,8 +83,8 @@
 * **RDS:** Connection Count, Replica Lag (읽기 전용 복제본 지연 확인)
 * **S3:** Bucket Size (스토리지 비용 관리)
 
-<image>
-![Monitoring Dashboard]([여기에_클라우드워치_대시보드_이미지_경로])
+
+![Monitoring Dashboard]([여기에_클라우드워치_대시보드_이미지_경로]) 
 *▲ [그림 4] 주요 리소스 상태를 한눈에 파악하는 CloudWatch 대시보드*
 
 ---
