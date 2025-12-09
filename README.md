@@ -104,3 +104,23 @@ backend/
 - **comment**: 댓글
 - **interaction**: Redis 기반 좋아요 캐싱
 - **infra**: S3 presigned URL, 헬스체크
+
+---
+## 🚀 Future Roadmap: Service Expansion & Tech Challenges
+
+단순한 커뮤니티 기능을 넘어, 비즈니스 확장에 따른 **대규모 트래픽 처리**와 **고비용 리소스(GPU) 최적화**를 위한 기술적 로드맵입니다.
+
+### 1. AI 기반 추억 복원 서비스 (Premium Plan)
+> **Scenario:** 사용자가 업로드한 부모님의 음성과 레시피 텍스트를 AI로 학습시켜, 영상/음성 메시지로 변환해주는 유료 구독 모델 도입
+* **Infrastructure Challenge:**
+    * **GPU Cost Optimization:** AI 모델 추론을 위한 고비용 GPU 인스턴스 비용 절감을 위해, 학습/추론 작업은 **Spot Instance**로 처리하고 중단 시 체크포인트부터 재개하는 아키텍처 설계 예정.
+    * **Async Processing:** 영상 렌더링 시간이 길어짐에 따라 API Gateway 타임아웃 방지를 위해 **SQS + Lambda(Container Image) 비동기 파이프라인** 구축.
+
+### 2. 식재료 마켓플레이스 확장 (Commerce)
+> **Scenario:** 레시피 상세 화면에서 식재료 구매로 이어지는 커머스 기능 도입 및 트래픽 증대
+* **Infrastructure Challenge:**
+    * **Traffic Spike 대응:** 타임세일 등 트래픽 폭주에 대비해 **K6** 부하 테스트 시나리오를 고도화하고, 트래픽 패턴 분석을 통한 **Pre-warming** 전략 수립.
+    * **Global Latency:** 향후 해외 배송 서비스 확장 시 **CloudFront** 캐싱 최적화 및 리전 확장(Multi-Region) 고려.
+
+### 3. 수익화에 따른 FinOps 전략
+* 수익 창출보다 선행되어야 할 것은 **인프라 비용 최적화**입니다. 현재 구성된 아키텍처(Spot Instance, ARM 프로세서 도입)를 기반으로, 서비스 확장에 따른 비용 증가폭을 최소화하여 **매출 대비 인프라 비용 비율을 10% 미만으로 방어**하는 것이 목표입니다.

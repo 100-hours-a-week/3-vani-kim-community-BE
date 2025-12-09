@@ -228,6 +228,10 @@ public class LoadTestDataGenerator {
 
         String sql = "INSERT INTO comment (id, user_id, post_id, parent_id, depth, comment_group, content, comment_status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+        String updateSql = "UPDATE post SET comment_count = comment_count + ? WHERE id = ?";
+
+        Map<String, Integer> postCommentDelta =  new HashMap<>();
+
         Random random = new Random();
         AtomicInteger counter = new AtomicInteger(0);
 
@@ -241,6 +245,9 @@ public class LoadTestDataGenerator {
                 String postId = postIds.get(i);
                 // 포아송 분포로 댓글 개수 결정 (평균 10개)
                 int commentCount = Math.min(random.nextInt(20) + 1, 30); // 1~30개
+
+                // postId별 댓글 수를 기록
+                postCommentDelta.merge(postId, commentCount, Integer::sum);
 
                 for (int j = 0; j < commentCount; j++) {
                     String commentId = UlidCreator.getUlid().toString();
@@ -287,6 +294,26 @@ public class LoadTestDataGenerator {
                 log.info("  진행률: {} / {} ({} %), 생성된 댓글: {}",
                     endIdx, postIds.size(), (endIdx * 100 / postIds.size()), counter.get());
             }
+
+            List<Map.Entry<String, Integer>> entries = new ArrayList<>(postCommentDelta.entrySet());
+
+            for(int i = 0; i < entries.size(); i+= BATCH_SIZE) {
+                int end = Math.min(i + BATCH_SIZE, entries.size());
+                List<Map.Entry<String, Integer>> batch = entries.subList(i, end);
+
+                jdbcTemplate.batchUpdate(updateSql, new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int idx) throws SQLException {
+                        Map.Entry<String, Integer> entry = entries.get(idx);
+                        ps.setString(1, entry.getKey());
+                        ps.setString(2, entry.getKey());
+                    }
+                    @Override
+                    public int getBatchSize() {
+                        return batch.size();
+                    }
+                });
+            }
         }
 
         return counter.get();
@@ -301,7 +328,6 @@ public class LoadTestDataGenerator {
         log.info("좋아요 데이터 생성 시작... (목표: 약 {} 개)", totalLikes);
 
         String sql = "INSERT IGNORE INTO user_post_like (user_id, post_id) VALUES (?, ?)";
-
         Random random = new Random();
         AtomicInteger counter = new AtomicInteger(0);
 

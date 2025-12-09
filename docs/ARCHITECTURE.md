@@ -28,6 +28,17 @@
 
 막연한 추측이 아닌, 실제 비즈니스 시나리오와 경쟁사 데이터를 기반으로 정량적인 목표 수치를 설정했습니다.
 
+### 2.1 비즈니스 및 기능 요구사항
+스타트업 환경을 가정하여 *비용 효율성* 과 *서비스 안정성* 사이의 균형을 맞추는 것을 최우선 목표로 설정했습니다.
+- 비즈니스 목표: 100만 MAU 서비스를 1년간 안정적으로 운영하며, 클라우드 비용 절감 시 인센티브(가정)를 획득.
+- 기능적 특징:
+  - High Resolution Images: 음식 사진 위주의 커뮤니티로 고용량 이미지(최대 10MB) 업로드 허용 → 네트워크 대역폭 및 스토리지 부하 집중 예상
+  - Infinite Scroll: 게시글 목록 및 댓글의 무한 스크롤 → 잦은 DB 조회 트래픽 발생
+  - Constraint: 채팅 및 실시간 인기글 기능 부재 (초기 모델)
+
+### 2.2 유저 시나리오 기반 QPS 선정(Traffic Estimation)
+피크타임 동시 접속자(CCU)를 1만 명으로 가정하고, 유저 행동 패턴을 분석하여 목표 QPS를 도출했습니다.
+
 ### 🎯 트래픽 목표 설정
 * **가정:** 100만 MAU (월간 활성 사용자), 10만 DAU, 피크타임 동시 접속자(CCU) 약 1만 명 예상
 * **QPS 산출 (읽기:쓰기 = 9:1 가정):**
@@ -35,10 +46,15 @@
     * **Write QPS:** 약 333 (Peak 시)
     * **Total Target QPS:** 약 1,543 → **안전 마진(1.5배) 적용 시 약 2,315 QPS**
 
-<image>
-![Traffic Calculation Logic]([여기에_트래픽_산정_근거_이미지_경로])
+![Traffic Calculation Logic](docs/images/QPS.png)
 *▲ [그림 2] 유저 시나리오 기반 피크타임 QPS 산출 근거*
 
+### 2.3 성능 목표 설정(SLO Definition)
+사용자 이탈을 방지하기 위해 Nielsen의 응답 속도 연구를 기반으로 구체적인 Latency 목표(SLO)를 수립했습니다.
+> **Why p99?** > 100만 MAU / 10만 DAU 환경에서 상위 1%의 지연은 매일 1,000명의 사용자가 나쁜 경험을 한다는 것을 의미하므로, p99 지표를 중요하게 관리합니다.
+
+![Traffic Calculation Logic](docs/images/Latency.png)
+*▲ [그림 3] API 카테고리 별 Target Latency(p50,p99)*
 ---
 
 ## 3. Key Architecture Decisions (핵심 의사결정)
@@ -64,8 +80,7 @@
     * **Lambda:** 업로드 권한 발급 로직만 가벼운 Lambda(Node.js)로 분리하여 구현.
 * **Result:** EC2는 비즈니스 로직 처리에만 집중할 수 있게 되어 필요한 인스턴스 수 감소.
 
-<image>
-![Image Upload Sequence]([여기에_이미지_업로드_시퀀스_이미지_경로])
+![Image Upload Sequence](/docs/images/Lambda.png)
 *▲ [그림 3] EC2 부하를 줄이는 S3 Direct Upload 시퀀스 (Client -> Lambda -> S3)*
 
 ### 💡 Decision 4: DB 병목 해소를 위한 Redis 캐싱 전략
@@ -93,13 +108,13 @@
 
 서울 리전(ap-northeast-2) 기준 월간 예상 비용을 산출하여 예산 내 운영 가능성을 검증했습니다.
 
-| 구분 | 세부 내역 |     월별 예상 비용 | 비고 |
-|:---:|:---|-------------:|:---|
-| **EC2** | T4g.medium (On-Demand 2대 + Spot 10대 가정) |   **$72.09** | Spot 인스턴스로 비용 절감 |
-| **RDS** | db.m5.large (Master 1 + Replica 1) + Storage 200GB | **$NEED TO** | (실제 계산값 기입) |
-| **Cache** | ElastiCache (cache.t4g.small) | **$NEED TO** | |
-| **ELB** | ALB 시간당 요금 + LCU 처리 비용 | **$NEED TO** | |
-| **Total** | **월 합계 (Estimated)** | **$NEED TO** | |
+| 구분 | 세부 내역 |     월별 예상 비용 | 비고                               |
+|:---:|:---|-------------:|:---------------------------------|
+| **EC2** | T4g.medium (On-Demand 2대 + Spot 10대 가정) |   **$72.09** | Spot 인스턴스로 비용 절감                 |
+| **RDS** | db.m5.large (Master 1 + Replica 1) + Storage 200GB |   **$195.4** | USD 0.236/h<br/> GB-월당 USD 0.131 |
+| **Cache** | ElastiCache (cache.t4g.small) |   **$33.84** | USD 0.047/h                      |
+| **ELB** | ALB 시간당 요금 + LCU 처리 비용 | **$NEED TO** |                                  |
+| **Total** | **월 합계 (Estimated)** | **$NEED TO** |                                  |
 
 *(※ 비용은 AWS Pricing Calculator 기준이며 트래픽 변동에 따라 달라질 수 있음)*
 
