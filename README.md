@@ -31,7 +31,7 @@
 
 ## 🏗️ Architecture Overview
 
-단일 장애점(SPOF)을 제거하고, 퍼블릭/프라이빗 서브넷을 통한 보안 격리 구조를 적용했습니다.
+퍼블릭/프라이빗 서브넷을 통한 보안 격리 구조를 적용했습니다.
 
 ![AWS Architecture Diagram](docs/images/AWS_structure.png)
 
@@ -55,7 +55,7 @@
 
 ## 💻 Backend Highlights & Data Strategy
 
-DevOps 엔지니어로서 **"배포할 애플리케이션의 특성"**을 깊이 이해하고 인프라를 설계했습니다. 단순한 CRUD가 아닌 대용량 트래픽 처리를 위한 백엔드 설계를 적용했습니다.
+DevOps 엔지니어로서 **"배포할 애플리케이션의 특성"** 을 깊이 이해하고 인프라를 설계했습니다. 단순한 CRUD가 아닌 대용량 트래픽 처리를 위한 백엔드 설계를 적용했습니다.
 
 * **🚀 동시성 제어 (Concurrency Control)**
     * 인기 게시글의 '좋아요' 클릭 시 발생하는 DB Row Lock 병목을 해소하기 위해 **Redis Set** 기반의 캐싱 및 비동기 쓰기 전략 구현
